@@ -1,19 +1,33 @@
 [
   {
-    "name": "Change Plan",
+    "name": "Change Plan - no subscription",
     "steps": [
       {
+        "send": { "callback": "subscription:change", "userId": 301 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Change to a different subscription plan with proration info"
-            }
-          }
-        ],
-        "send": {
-          "callback": "subscription:change"
-        }
+          { "method": "sendMessage", "payload": { "text": "You don't have an active subscription to change." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Change Plan - view available plans",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 302 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:basic", "userId": 302 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "plan:confirm:basic", "userId": 302 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "subscription:change", "userId": 302 },
+        "expect": [{ "method": "sendMessage" }]
       }
     ]
   }

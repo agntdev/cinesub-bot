@@ -1,19 +1,33 @@
 [
   {
-    "name": "My Subscription",
+    "name": "My Subscription - no subscription",
     "steps": [
       {
+        "send": { "callback": "subscription:my", "userId": 201 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "View subscription status, next billing date, and plan details"
-            }
-          }
-        ],
-        "send": {
-          "callback": "subscription:my"
-        }
+          { "method": "sendMessage", "payload": { "text": "You don't have an active subscription yet." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "My Subscription - with active subscription",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 202 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:standard", "userId": 202 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "plan:confirm:standard", "userId": 202 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "subscription:my", "userId": 202 },
+        "expect": [{ "method": "sendMessage" }]
       }
     ]
   }

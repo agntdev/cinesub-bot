@@ -3,17 +3,57 @@
     "name": "Subscribe",
     "steps": [
       {
+        "send": { "callback": "subscribe:start", "userId": 101 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Show available subscription plans and start the subscription process"
-            }
-          }
-        ],
-        "send": {
-          "callback": "subscribe:start"
-        }
+          { "method": "sendMessage", "payload": { "text": "Choose a plan to start streaming:\n\n• Basic — USD 9.99/month\n  HD streaming, 1 device, Limited catalog\n\n• Standard — USD 14.99/month (7-day free trial)\n  Full HD streaming, 2 devices, Full catalog, Downloads\n\n• Premium — USD 19.99/month (14-day free trial)\n  4K streaming, 4 devices, Full catalog, Downloads, Early access" } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Subscribe - Select Standard plan",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 102 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:standard", "userId": 102 },
+        "expect": [{ "method": "editMessageText", "payload": { "text": "You selected: Standard\n\nPrice: USD 14.99/month\nFree trial: 7 days\n\nFeatures:\n• Full HD streaming\n• 2 devices\n• Full catalog\n• Downloads\n\nProceed with payment?" } }]
+      }
+    ]
+  },
+  {
+    "name": "Subscribe - Confirm payment",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 103 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:premium", "userId": 103 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "plan:confirm:premium", "userId": 103 },
+        "expect": [{ "method": "editMessageText" }]
+      }
+    ]
+  },
+  {
+    "name": "Back to plans from selection",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 104 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:basic", "userId": 104 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "subscribe:start", "userId": 104 },
+        "expect": [{ "method": "sendMessage" }]
       }
     ]
   }

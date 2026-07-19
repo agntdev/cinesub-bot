@@ -1,19 +1,33 @@
 [
   {
-    "name": "Cancel Subscription",
+    "name": "Cancel Subscription - no subscription",
     "steps": [
       {
+        "send": { "callback": "subscription:cancel", "userId": 401 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Cancel the current subscription"
-            }
-          }
-        ],
-        "send": {
-          "callback": "subscription:cancel"
-        }
+          { "method": "sendMessage", "payload": { "text": "You don't have an active subscription to cancel." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cancel Subscription - confirm dialog",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 402 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:standard", "userId": 402 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "plan:confirm:standard", "userId": 402 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "subscription:cancel", "userId": 402 },
+        "expect": [{ "method": "sendMessage" }]
       }
     ]
   }

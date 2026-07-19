@@ -1,19 +1,33 @@
 [
   {
-    "name": "Payment History",
+    "name": "Payment History - no payments",
     "steps": [
       {
+        "send": { "callback": "payment:history", "userId": 501 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "View payment records and transaction details"
-            }
-          }
-        ],
-        "send": {
-          "callback": "payment:history"
-        }
+          { "method": "sendMessage", "payload": { "text": "No payment history yet." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Payment History - with payments",
+    "steps": [
+      {
+        "send": { "callback": "subscribe:start", "userId": 502 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "plan:select:basic", "userId": 502 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "plan:confirm:basic", "userId": 502 },
+        "expect": [{ "method": "editMessageText" }]
+      },
+      {
+        "send": { "callback": "payment:history", "userId": 502 },
+        "expect": [{ "method": "sendMessage" }]
       }
     ]
   }
