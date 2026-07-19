@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Subscribe",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Show available subscription plans and start the subscription process"
+            }
+          }
+        ],
+        "send": {
+          "callback": "subscribe:start"
+        }
+      }
+    ]
+  }
+]
