@@ -1,17 +1,65 @@
 import { Composer } from "grammy";
+import type { Ctx } from "../bot.js";
+import { inlineButton, inlineKeyboard, confirmKeyboard } from "../toolkit/index.js";
+import { getUserSubscription, getPlanById, deleteUserSubscription } from "../storage.js";
 
-// SCAFFOLD — generated from the bot blueprint BEFORE the agent runs.
-// Keep a LIVE registration (.command / .callbackQuery / …) so this feature is
-// never an empty stub. Replace the reply body with real logic + copy; if you
-// change the user-facing text, update tests/specs to match EXACTLY.
-// Do NOT rewrite src/bot.ts — buildBot() already auto-loads this module.
-// Menu: wire this into /start via registerMainMenuItem({ label: "Cancel Subscription", data: "subscription:cancel" }) if the toolkit exposes it.
-
-const composer = new Composer();
+const composer = new Composer<Ctx>();
 
 composer.callbackQuery("subscription:cancel", async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("Cancel the current subscription");
+
+  const userId = ctx.from?.id ?? 0;
+  const sub = await getUserSubscription(userId);
+
+  if (!sub || sub.status === "cancelled") {
+    const kb = inlineKeyboard([
+      [inlineButton("🎟 Subscribe", "subscribe:start")],
+      [inlineButton("⬅️ Back to menu", "menu:main")],
+    ]);
+    await ctx.reply("You don't have an active subscription to cancel.", { reply_markup: kb });
+    return;
+  }
+
+  const plan = await getPlanById(sub.planId);
+
+  let text = `Cancel ${plan?.name ?? sub.planId} subscription?\n\n`;
+  text += `Your subscription will remain active until the end of the current billing period (${sub.nextBillingDate.split("T")[0]}).\n\n`;
+  text += "After cancellation, you'll lose access to premium content.";
+
+  const kb = confirmKeyboard("confirm:cancel", { yes: "✅ Yes, cancel", no: "❌ Keep subscription" });
+
+  await ctx.reply(text, { reply_markup: kb });
+});
+
+composer.callbackQuery("confirm:cancel:yes", async (ctx) => {
+  await ctx.answerCallbackQuery();
+
+  const userId = ctx.from?.id ?? 0;
+  const sub = await getUserSubscription(userId);
+
+  if (!sub) {
+    await ctx.reply("Subscription not found.");
+    return;
+  }
+
+  // Mark as cancelled
+  await deleteUserSubscription(userId);
+
+  let text = `✅ Subscription cancelled.\n\n`;
+  text += `Your access continues until ${sub.nextBillingDate.split("T")[0]}.\n`;
+  text += "We'd love to have you back — just tap 🎟 Subscribe anytime!";
+
+  const kb = inlineKeyboard([
+    [inlineButton("🎟 Resubscribe", "subscribe:start")],
+    [inlineButton("⬅️ Back to menu", "menu:main")],
+  ]);
+
+  await ctx.reply(text, { reply_markup: kb });
+});
+
+composer.callbackQuery("confirm:cancel:no", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await ctx.reply("Great — your subscription stays active! 🎉");
 });
 
 export default composer;

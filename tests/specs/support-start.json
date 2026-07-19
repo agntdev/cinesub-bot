@@ -3,17 +3,23 @@
     "name": "Contact Support",
     "steps": [
       {
+        "send": { "callback": "support:start", "userId": 601 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Open a support form to send a message to the admin"
-            }
-          }
-        ],
-        "send": {
-          "callback": "support:start"
-        }
+          { "method": "sendMessage", "payload": { "text": "💬 Contact Support\n\nDescribe your issue and we'll get back to you shortly.\nPlease include:\n• What happened\n• When it happened\n• Any error messages you saw" } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Contact Support - open form",
+    "steps": [
+      {
+        "send": { "callback": "support:start", "userId": 602 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "support:send", "userId": 602 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Please type your support message below:" } }]
       }
     ]
   }
